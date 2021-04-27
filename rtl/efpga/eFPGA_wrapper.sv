@@ -198,8 +198,8 @@ module eFPGA_wrapper (
   assign fpgaio_oe = fpga_oe[`N_FPGAIO-1:0];
   assign fpgaio_out = fpga_out[`N_FPGAIO-1:0];
 
-  //A2_design Arnold2_Design ( // use this to go to A2F/F2A
-  top Arnold2_Design (  // use this to connect rtl directly
+  A2_design Arnold2_Design ( // use this to go to A2F/F2A
+  //top Arnold2_Design (  // use this to connect rtl directly
       // ouputs to FCB
 
       // SOC signals
@@ -406,13 +406,13 @@ module eFPGA_wrapper (
       .m1_coef_raddr(m1_coef_raddr),
       .m1_coef_waddr(m1_coef_waddr),
       .m1_coef_powerdn(m1_coef_powerdn)
-      /*                       
+      /*
                                  .fb_spe_out   (test_fb_spe_out),
                                  .fcb_bl_dout     (fcb_bl_dout),
 
                                  .parallel_cfg    (fcb_pif_en),
-                                 
-                                 
+
+
                                  // Inputs
                                  .M_0_             (M_0_),
                                  .M_1_             (M_1_),
@@ -421,7 +421,7 @@ module eFPGA_wrapper (
                                  .M_4_             (M_4_),
                                  .M_5_             (M_5_),
                                  .MLATCH           (MLATCH),
- 
+
                                  .BL_CLK           (fcb_blclk),
                                  .BL_DIN_0_        (fcb_bl_din[0]),
                                  .BL_DIN_10_       (fcb_bl_din[10]),
@@ -670,4 +670,3 @@ module eFPGA_wrapper (
 
 
 endmodule
-
