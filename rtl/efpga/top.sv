@@ -914,8 +914,6 @@ module top (
                   24'b0, lint_WDATA[7:0]
                 });
               endcase  // case (m0_coef_wmode)
-
-              m0_coef_wdata <= lint_WDATA;
             end
 
             20'b0000_0100_xxxx_xxxx_xxxx: begin  // m1_oper0_ram
