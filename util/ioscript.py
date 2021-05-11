@@ -172,6 +172,15 @@ if args.periph_bus_defines != None:
                         line[2] = line[2].replace("_", "")
                     per_bus_defines[line[1]] = line[2]
     per_bus_define_file.close()
+    
+####################################################################################
+#
+# Grab peripheral definitions from perdef.json
+#
+####################################################################################
+if args.perdef_json != None:
+  with open(args.perdef_json) as f:
+    perdefs = json.load(f)
 
 ######################################################################
 #
@@ -182,9 +191,6 @@ if args.soc_defines != None and args.peripheral_defines != None and args.perdef_
     sysio = {"":""}                                                 # row for each sysio = ['name', 'direction']
     sysionames = [-1 for row in range(int(soc_defines['N_IO']))]    # row for each sysio = [ionum, 'name']
     with open(args.peripheral_defines, 'w') as peripheral_defines_svh:
-        with open(args.perdef_json) as f:
-            perdefs = json.load(f)
-
         write_license_header(peripheral_defines_svh,"")
         peripheral_defines_svh.write("\n")
         peripheral_defines_svh.write("`define BUILD_DATE 32'h%s\n" % datetime.today().strftime("%Y%m%d"))
