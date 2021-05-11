@@ -32,7 +32,6 @@ ${HDR_DIR}/core-v-mcu-config.h:	${DEF_FILES}
 				@mkdir -p ${HDR_DIR}
 				python3 ../util/ioscript.py\
 					--soc-defines ../rtl/includes/pulp_soc_defines.sv\
-					--peripheral-defines ../rtl/includes/pulp_peripheral_defines.svh\
 					--periph-bus-defines ../rtl/includes/periph_bus_defines.sv\
 					--pin-table ../pin-table.csv\
 					--perdef-json ../perdef.json\
