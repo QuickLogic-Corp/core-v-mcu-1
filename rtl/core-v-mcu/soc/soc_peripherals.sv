@@ -232,6 +232,7 @@ module soc_peripherals #(
   APB_BUS s_stdout_bus ();
   APB_BUS s_apb_timer_bus ();
   APB_BUS s_apb_fcb_bus ();
+  APB_BUS s_apb_i2cs_bus ();
 
   logic [                   31:0]                            s_gpio_sync;
   logic                                                      s_sel_hyper_axi;
@@ -242,6 +243,7 @@ module soc_peripherals #(
   logic                                                      s_i2c_event;
   logic                                                      s_i2s_event;
   logic                                                      s_i2s_cam_event;
+  logic                                                      s_i2cs_event;
 
   logic [                    3:0]                            s_adv_timer_events;
   logic [                    1:0]                            s_fc_hp_events;
@@ -355,7 +357,8 @@ module soc_peripherals #(
   assign s_events[139] = s_gpio_event;
   assign s_events[140] = fc_hwpe_events_i[0];
   assign s_events[141] = fc_hwpe_events_i[1];
-  assign s_events[159:142] = '0;
+  assign s_events[142] = s_i2cs_event;
+  assign s_events[159:143] = '0;
 
   assign fc_events_o[6:0] = 7'h0;  //RESERVED for sw events all routed to irq3
   assign fc_events_o[7] = s_timer_lo_event;  // MTIME irq
@@ -420,7 +423,8 @@ module soc_peripherals #(
       .hwpe_master        (apb_hwpe_master),
       .timer_master       (s_apb_timer_bus),
       .stdout_master      (s_stdout_bus),
-      .fcb_master         (s_apb_fcb_bus)
+      .fcb_master         (s_apb_fcb_bus),
+      .i2cs_master        (s_apb_i2cs_bus) 
   );
 
 `ifdef SYNTHESIS
@@ -882,6 +886,33 @@ module soc_peripherals #(
       .efpga_test_M_4_i           (efpga_test_M_4_i),
       .efpga_test_M_5_i           (efpga_test_M_5_i),
       .efpga_test_MLATCH_i        (efpga_test_MLATCH_i)
+  );
+  
+  ///////////////////////////////////////////////////////////////
+  //  █████╗ ██████╗ ██████╗                                   //
+  // ██╔══██╗██╔══██╗██╔══██╗                                  //
+  // ███████║██████╔╝██████╔╝                                  //
+  // ██╔══██║██╔═══╝ ██╔══██╗                                  //
+  // ██║  ██║██║     ██████╔╝                                  //
+  // ╚═╝  ╚═╝╚═╝     ╚═════╝                                   //
+  ///////////////////////////////////////////////////////////////
+
+  apb_i2cs i_apb_i2cs (
+      .apb_pclk_i   (clk_i),
+      .apb_presetn_i(rst_ni),
+
+      .apb_paddr_i  (s_apb_i2cs_bus.paddr),
+      .apb_pwdata_i (s_apb_i2cs_bus.pwdata),
+      .apb_pwrite_i (s_apb_i2cs_bus.pwrite),
+      .apb_psel_i   (s_apb_i2cs_bus.psel),
+      .apb_penable_i(s_apb_i2cs_bus.penable),
+      .apb_prdata_o (s_apb_i2cs_bus.prdata),
+      .apb_pready_o (s_apb_i2cs_bus.pready),
+      // .PSLVERR(s_apb_i2cs_bus.pslverr),
+
+      .i2c_scl_i(),
+      .i2c_sda_io (),
+      .i2c_interrupt_o(s_i2cs_event)
   );
 
 endmodule
