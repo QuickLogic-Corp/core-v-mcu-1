@@ -25,7 +25,9 @@ module apb_i2cs (
     
     // I2C pins
     i2c_scl_i           ,
-    i2c_sda_io          ,
+    i2c_sda_i           ,
+    i2c_sda_o           ,
+    i2c_sda_oe          ,
     i2c_interrupt_o
 );
 
@@ -47,7 +49,9 @@ output          apb_interrupt_o     ;
 
 // I2C pins
 input           i2c_scl_i           ;
-inout           i2c_sda_io          ;
+input           i2c_sda_i           ;
+output          i2c_sda_o           ;
+output          i2c_sda_oe          ;
 output          i2c_interrupt_o     ;
 
 
@@ -64,7 +68,9 @@ wire            apb_interrupt_o     ;
 
 // I2C pins
 wire            i2c_scl_i           ;
-wire            i2c_sda_io          ;
+wire            i2c_sda_i           ;
+wire            i2c_sda_o           ;
+wire            i2c_sda_oe          ;
 wire            i2c_interrupt_o     ;
 
 
@@ -102,8 +108,9 @@ assign rst  = !apb_presetn_i    ;
 
 
 assign i2c_scl_in = i2c_scl_i;
-assign i2c_sda_in = i2c_sda_io;
-assign i2c_sda_io = (i2c_sda_out == 1'b0) ? 1'b0 : 1'bz;    // I2C SDA pin assignment
+assign i2c_sda_in = i2c_sda_i;
+assign I2c_sda_o = 1'b0;
+assign i2c_sda_oe = i2c_sda_out;
 
 
 // I2C peripheral interface
