@@ -51,8 +51,8 @@ module pad_control (
   ///////////////////////////////////////////////////
   assign perio_in_o[0] = ((pad_mux_i[8] == 2'd0) ? io_in_i[8] : 1'b0);
   assign perio_in_o[1] = ((pad_mux_i[7] == 2'd0) ? io_in_i[7] : 1'b0);
-  assign perio_in_o[2] = ((pad_mux_i[10] == 2'd0) ? io_in_i[10] : 1'b0);
-  assign perio_in_o[3] = ((pad_mux_i[9] == 2'd0) ? io_in_i[9] : 1'b0);
+  assign perio_in_o[2] = ((pad_mux_i[9] == 2'd0) ? io_in_i[9] : 1'b0);
+  assign perio_in_o[3] = ((pad_mux_i[10] == 2'd0) ? io_in_i[10] : 1'b0);
   assign perio_in_o[4] = ((pad_mux_i[16] == 2'd0) ? io_in_i[16] : 1'b0);
   assign perio_in_o[5] = ((pad_mux_i[13] == 2'd0) ? io_in_i[13] : 1'b0);
   assign perio_in_o[6] = ((pad_mux_i[26] == 2'd1) ? io_in_i[26] : 1'b0);
@@ -140,7 +140,8 @@ module pad_control (
   assign apbio_in_o[44] = ((pad_mux_i[41] == 2'd2) ? io_in_i[41] : 1'b0);
   assign apbio_in_o[45] = ((pad_mux_i[42] == 2'd2) ? io_in_i[42] : 1'b0);
   assign apbio_in_o[46] = ((pad_mux_i[43] == 2'd2) ? io_in_i[43] : 1'b0);
-  assign apbio_in_o[47] = ((pad_mux_i[44] == 2'd2) ? io_in_i[44] : 1'b0);
+  assign apbio_in_o[47] = ((pad_mux_i[11] == 2'd1) ? io_in_i[11] :
+                           ((pad_mux_i[44] == 2'd2) ? io_in_i[44] : 1'b0));
   assign apbio_in_o[48] = ((pad_mux_i[27] == 2'd0) ? io_in_i[27] : 1'b0);
   assign apbio_in_o[49] = ((pad_mux_i[28] == 2'd0) ? io_in_i[28] : 1'b0);
 
@@ -230,16 +231,16 @@ module pad_control (
                          ((pad_mux_i[8] == 2'd1) ? 1'b0 :
                          ((pad_mux_i[8] == 2'd2) ? apbio_out_i[1] :
                          ((pad_mux_i[8] == 2'd3) ? fpgaio_out_i[1] : 1'b0))));
-  assign io_out_o[9] = ((pad_mux_i[9] == 2'd0) ? 1'b0 :
+  assign io_out_o[9] = ((pad_mux_i[9] == 2'd0) ? perio_out_i[`PERIO_UART1_TX] :
                          ((pad_mux_i[9] == 2'd1) ? 1'b0 :
                          ((pad_mux_i[9] == 2'd2) ? apbio_out_i[2] :
                          ((pad_mux_i[9] == 2'd3) ? fpgaio_out_i[2] : 1'b0))));
-  assign io_out_o[10] = ((pad_mux_i[10] == 2'd0) ? perio_out_i[`PERIO_UART1_TX] :
+  assign io_out_o[10] = ((pad_mux_i[10] == 2'd0) ? 1'b0 :
                          ((pad_mux_i[10] == 2'd1) ? 1'b0 :
                          ((pad_mux_i[10] == 2'd2) ? apbio_out_i[3] :
                          ((pad_mux_i[10] == 2'd3) ? fpgaio_out_i[3] : 1'b0))));
-  assign io_out_o[11] = ((pad_mux_i[11] == 2'd0) ? 1'b1 :
-                         ((pad_mux_i[11] == 2'd1) ? 1'b0 :
+  assign io_out_o[11] = ((pad_mux_i[11] == 2'd0) ? apbio_out_i[32] :
+                         ((pad_mux_i[11] == 2'd1) ? apbio_out_i[47] :
                          ((pad_mux_i[11] == 2'd2) ? apbio_out_i[4] :
                          ((pad_mux_i[11] == 2'd3) ? fpgaio_out_i[4] : 1'b0))));
   assign io_out_o[12] = ((pad_mux_i[12] == 2'd0) ? 1'b0 :
@@ -426,16 +427,16 @@ module pad_control (
                          ((pad_mux_i[8] == 2'd1) ? 1'b0 :
                          ((pad_mux_i[8] == 2'd2) ? apbio_oe_i[1] :
                          ((pad_mux_i[8] == 2'd3) ? fpgaio_oe_i[1] : 1'b0))));
-  assign io_oe_o[9] = ((pad_mux_i[9] == 2'd0) ? 1'b0 :
+  assign io_oe_o[9] = ((pad_mux_i[9] == 2'd0) ? 1'b1 :
                          ((pad_mux_i[9] == 2'd1) ? 1'b0 :
                          ((pad_mux_i[9] == 2'd2) ? apbio_oe_i[2] :
                          ((pad_mux_i[9] == 2'd3) ? fpgaio_oe_i[2] : 1'b0))));
-  assign io_oe_o[10] = ((pad_mux_i[10] == 2'd0) ? 1'b1 :
+  assign io_oe_o[10] = ((pad_mux_i[10] == 2'd0) ? 1'b0 :
                          ((pad_mux_i[10] == 2'd1) ? 1'b0 :
                          ((pad_mux_i[10] == 2'd2) ? apbio_oe_i[3] :
                          ((pad_mux_i[10] == 2'd3) ? fpgaio_oe_i[3] : 1'b0))));
-  assign io_oe_o[11] = ((pad_mux_i[11] == 2'd0) ? 1'b1 :
-                         ((pad_mux_i[11] == 2'd1) ? 1'b1 :
+  assign io_oe_o[11] = ((pad_mux_i[11] == 2'd0) ? apbio_oe_i[32] :
+                         ((pad_mux_i[11] == 2'd1) ? apbio_oe_i[47] :
                          ((pad_mux_i[11] == 2'd2) ? apbio_oe_i[4] :
                          ((pad_mux_i[11] == 2'd3) ? fpgaio_oe_i[4] : 1'b0))));
   assign io_oe_o[12] = ((pad_mux_i[12] == 2'd0) ? 1'b1 :
