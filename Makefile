@@ -26,7 +26,6 @@ export PRIVATE_BANK_SIZE=8192
 
 help:
 			@echo "all:            generate build scripts, custom build files, doc and sw header files"
-			@echo "bitstream:      generate nexysA7-100T.bit file for emulation"
 			@echo "lint:           run Verilator lint check"
 			@echo "doc:            generate documentation"
 			@echo "sw:             generate C header files (in ./sw)"
@@ -105,10 +104,6 @@ ${IOSCRIPT_OUT}:	${IOSCRIPT}
 					--input-xdc emulation/core-v-mcu-nexys/constraints/Nexys-A7-100T-Master.xdc\
 					--output-xdc emulation/core-v-mcu-nexys/constraints/core-v-mcu-pin-assignment.xdc
 
-
-.PHONY:bitstream
-bitstream:	${SCRIPTS} ${IOSCRIPT_OUT}
-				(cd fpga; make nexys rev=nexysA7-100T) 2>&1 | tee vivado.log
 
 download:
 	vivado -mode batch -source emulation/core-v-mcu-nexys/tcl/download_bitstream.tcl -tclargs\
