@@ -11,51 +11,28 @@
 `include "pulp_soc_defines.sv"
 `include "pulp_peripheral_defines.svh"
 
-module core_v_mcu #(
-    parameter USE_FPU  = 1,
-    parameter USE_HWPE = 1
-) (
-    inout wire [`N_IO-1:0] io
+module core_v_mcu (
+    output  logic [`N_IO-1:0] io_out_o,                   // data going to pads
+    output  logic [`N_IO-1:0] io_oe_o,                    // enable going to pads
+    input   logic [`N_IO-1:0] io_in_i,                    // data coming from pads
+
+    output  logic [`N_IO-1:0][`NBIT_PADCFG-1:0] pad_cfg_o  // pad configuration signals to pads
 );
 
-  localparam AXI_ADDR_WIDTH = 32;
-  localparam AXI_CLUSTER_SOC_DATA_WIDTH = 64;
-  localparam AXI_SOC_CLUSTER_DATA_WIDTH = 32;
-  localparam AXI_CLUSTER_SOC_ID_WIDTH = 6;
+  localparam integer AXI_ADDR_WIDTH = 32;
+  localparam integer AXI_CLUSTER_SOC_DATA_WIDTH = 64;
+  localparam integer AXI_SOC_CLUSTER_DATA_WIDTH = 32;
+  localparam integer AXI_CLUSTER_SOC_ID_WIDTH = 6;
 
-  localparam AXI_USER_WIDTH = 6;
-  localparam AXI_CLUSTER_SOC_STRB_WIDTH = AXI_CLUSTER_SOC_DATA_WIDTH / 8;
-  localparam AXI_SOC_CLUSTER_STRB_WIDTH = AXI_SOC_CLUSTER_DATA_WIDTH / 8;
+  localparam integer AXI_USER_WIDTH = 6;
+  localparam integer AXI_CLUSTER_SOC_STRB_WIDTH = AXI_CLUSTER_SOC_DATA_WIDTH / 8;
+  localparam integer AXI_SOC_CLUSTER_STRB_WIDTH = AXI_SOC_CLUSTER_DATA_WIDTH / 8;
 
-  localparam BUFFER_WIDTH = 8;
-  localparam EVENT_WIDTH = 8;
+  localparam integer BUFFER_WIDTH = 8;
+  localparam integer EVENT_WIDTH = 8;
 
-  localparam CVP_ADDR_WIDTH = 32;
-  localparam CVP_DATA_WIDTH = 32;
-
-  //
-  // PAD FRAME TO PAD CONTROL SIGNALS
-  //
-
-  logic [       `N_IO-1:0][`NBIT_PADCFG-1:0] s_pad_cfg;
-
-  logic [       `N_IO-1:0]                   s_io_out;
-  logic [       `N_IO-1:0]                   s_io_oe;
-  logic [       `N_IO-1:0]                   s_io_in;
-
-
-  //
-  // OTHER PAD FRAME SIGNALS
-  //
-
-  logic                                      s_ref_clk;
-  logic                                      s_rstn;
-
-  logic                                      s_jtag_tck;
-  logic                                      s_jtag_tdi;
-  logic                                      s_jtag_tdo;
-  logic                                      s_jtag_tms;
-  logic                                      s_jtag_trst;
+  localparam integer CVP_ADDR_WIDTH = 32;
+  localparam integer CVP_DATA_WIDTH = 32;
 
   //
   // SOC TO SAFE DOMAINS SIGNALS
@@ -254,7 +231,6 @@ module core_v_mcu #(
   //
   // SOC TO CLUSTER DOMAINS SIGNALS
   //
-  // PULPissimo doens't have a cluster so we ignore them
 
   logic                                      s_dma_pe_evt_ack;
   logic                                      s_dma_pe_evt_valid;
@@ -276,32 +252,26 @@ module core_v_mcu #(
   logic                                      s_fc_fetch_en_valid;
   logic                                      s_fc_fetch_en;
 
-  logic                                      debug1;
-  logic                                      debug0;
-
   //
-  // PAD FRAME
+  // SYSTEM IO / SAFE DOMAIN
   //
-  pad_frame i_pad_frame (
-      .pad_cfg_i(s_pad_cfg),
-      .bootsel_o(s_bootsel),
+  logic [`N_IO-1:0]                     s_io_out;
+  
+  assign s_bootsel                      = io_in_i[`IOINDEX_BOOTSEL_I];
+  assign s_jtag_tck                     = io_in_i[`IOINDEX_JTAG_TCK_I];
+  assign s_jtag_tdi                     = io_in_i[`IOINDEX_JTAG_TDI_I];
+  assign s_jtag_tms                     = io_in_i[`IOINDEX_JTAG_TMS_I];
+  assign s_jtag_trst                    = io_in_i[`IOINDEX_JTAG_TRST_I];
+  assign s_ref_clk                      = io_in_i[`IOINDEX_REF_CLK_I];
+  assign s_rstn                         = io_in_i[`IOINDEX_RSTN_I];
 
-      .ref_clk_o  (s_ref_clk),
-      .rstn_o     (s_rstn),
-      .jtag_tdo_i (s_jtag_tdo),
-      .jtag_tck_o (s_jtag_tck),
-      .jtag_tdi_o (s_jtag_tdi),
-      .jtag_tms_o (s_jtag_tms),
-      .jtag_trst_o(s_jtag_trst),
-
-      // internal io signals
-      .io_out_i(s_io_out),  // data going to pads
-      .io_oe_i (s_io_oe),  // enable going to pads
-      .io_in_o (s_io_in),  // data coming from pads
-
-      // pad signals
-      .io(io)  // pad wires
-  );
+`ifdef (`IOINDEX_JTAG_TDO_O == 0)
+  assign io_out_o = {s_io_out[`N_IO-1:`IOINDEX_JTAG_TDO_O+1], s_jtag_tdo};
+`elsif  (`IOINDEX_JTAG_TDO_O == (`N_IO-1))
+  assign io_out_o = {s_jtag_tdo, s_io_out[`IOINDEX_JTAG_TDO_O-1:0]};
+`else
+  assign io_out_o = {s_io_out[`N_IO-1:`IOINDEX_JTAG_TDO_O+1], s_jtag_tdo, s_io_out[`IOINDEX_JTAG_TDO_O-1:0]};
+`endif
 
   //
   // SAFE DOMAIN
@@ -324,13 +294,13 @@ module core_v_mcu #(
       .mode_select_o  (s_mode_select),
       .dft_cg_enable_o(s_dft_cg_enable),
       // PAD control signals
-      .pad_cfg_o      (s_pad_cfg),
+      .pad_cfg_o      (pad_cfg_o),
       .pad_cfg_i      (s_pad_cfg_soc),
       .pad_mux_i      (s_pad_mux_soc),
       // IO signals
       .io_out_o       (s_io_out),
-      .io_in_i        (s_io_in),
-      .io_oe_o        (s_io_oe),
+      .io_in_i        (io_in_i),
+      .io_oe_o        (io_oe_o),
       // PERIO signals
       .perio_out_i    (s_perio_out),
       .perio_in_o     (s_perio_in),
@@ -342,14 +312,7 @@ module core_v_mcu #(
       // FPGAIO signals
       .fpgaio_out_i   (s_fpgaio_out),
       .fpgaio_in_o    (s_fpgaio_in),
-      .fpgaio_oe_i    (s_fpgaio_oe),
-      // Timer signals
-      //      .timer0_i       (s_timer0),
-      //      .timer1_i       (s_timer1),
-      //      .timer2_i       (s_timer2),
-      //      .timer3_i       (s_timer3),
-      .debug0         (s_debug0),
-      .debug1         (s_debug1)
+      .fpgaio_oe_i    (s_fpgaio_oe)
   );
 
   //
@@ -386,8 +349,8 @@ module core_v_mcu #(
 
 
   soc_domain #(
-      .USE_FPU           (USE_FPU),
-      .USE_HWPE          (USE_HWPE),
+      .USE_FPU           (`USE_FPU),
+      .USE_HWPE          (`USE_HWPE),
       .AXI_ADDR_WIDTH    (AXI_ADDR_WIDTH),
       .AXI_DATA_IN_WIDTH (AXI_CLUSTER_SOC_DATA_WIDTH),
       .AXI_DATA_OUT_WIDTH(AXI_SOC_CLUSTER_DATA_WIDTH),

@@ -16,6 +16,7 @@ $(info ${FOO})
 SRCS=$(shell find ../rtl -name '*.csv' -print)
 $(info ${SRCS})
 HDR_FILES=${HDR_DIR}/core-v-mcu-config.h
+HDR_FILES+=${HDR_DIR}/core-v-mcu-iodef.h
 HDR_FILES+=$(addprefix ${HDR_DIR}/,$(notdir $(SRCS:.csv=.h)))
 $(info ${HDR_FILES})
 
@@ -37,6 +38,16 @@ ${HDR_DIR}/core-v-mcu-config.h:	${DEF_FILES}
 					--pin-table ../pin-table.csv\
 					--perdef-json ../perdef.json\
 					--cvmcu-h $@
+					
+${HDR_DIR}/core-v-mcu-iodef.h:	${DEF_FILES}
+				@mkdir -p ${HDR_DIR}
+				python3 ../util/ioscript.py\
+					--soc-defines ../rtl/includes/pulp_soc_defines.sv\
+					--periph-bus-defines ../rtl/includes/periph_bus_defines.sv\
+					--peripheral-defines ../rtl/includes/pulp_peripheral_defines.svh\
+					--pin-table ../pin-table.csv\
+					--perdef-json ../perdef.json\
+					--core-v-mcu-iodef-h $@
 
 
 ${HDR_DIR}/%.h : ${CSV_MIRROR_DIR}/%.csv

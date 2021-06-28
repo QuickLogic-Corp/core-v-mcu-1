@@ -36,44 +36,14 @@ module pad_frame(
     // pad signals
     inout  wire [`N_IO-1:0] io
     );
-    // dummy wire to make lint clean
-    wire void1;
     // connect io
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_0    (.OEN(1'b0), .I(1'b0), .O(jtag_tck_o), .PAD(io[0]), .PEN(1'b1));
-    `else
-      assign jtag_tck_o = io[0];
-    `endif
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_1    (.OEN(1'b0), .I(1'b0), .O(jtag_tdi_o), .PAD(io[1]), .PEN(1'b1));
-    `else
-      assign jtag_tdi_o = io[1];
-    `endif
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_2    (.OEN(1'b1), .I(jtag_tdo_i), .O(void1), .PAD(io[2]), .PEN(1'b1));
-    `else
-      assign io[2] = jtag_tdo_i;
-    `endif
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_3    (.OEN(1'b0), .I(1'b0), .O(jtag_tms_o), .PAD(io[3]), .PEN(1'b1));
-    `else
-      assign jtag_tms_o = io[3];
-    `endif
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_4    (.OEN(1'b0), .I(1'b0), .O(jtag_trst_o), .PAD(io[4]), .PEN(1'b1));
-    `else
-      assign jtag_trst_o = io[4];
-    `endif
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_5    (.OEN(1'b0), .I(1'b0), .O(ref_clk_o), .PAD(io[5]), .PEN(1'b1));
-    `else
-      assign ref_clk_o = io[5];
-    `endif
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_6    (.OEN(1'b0), .I(1'b0), .O(rstn_o), .PAD(io[6]), .PEN(1'b1));
-    `else
-      assign rstn_o = io[6];
-    `endif
+    pad_functional_pd i_pad_0   (.OEN(~io_oe_i[0]), .I(io_out_i[0]), .O(io_in_o[0]), .PAD(io[0]), .PEN(~pad_cfg_i[0][0]));
+    pad_functional_pd i_pad_1   (.OEN(~io_oe_i[1]), .I(io_out_i[1]), .O(io_in_o[1]), .PAD(io[1]), .PEN(~pad_cfg_i[1][0]));
+    pad_functional_pd i_pad_2   (.OEN(~io_oe_i[2]), .I(io_out_i[2]), .O(io_in_o[2]), .PAD(io[2]), .PEN(~pad_cfg_i[2][0]));
+    pad_functional_pd i_pad_3   (.OEN(~io_oe_i[3]), .I(io_out_i[3]), .O(io_in_o[3]), .PAD(io[3]), .PEN(~pad_cfg_i[3][0]));
+    pad_functional_pd i_pad_4   (.OEN(~io_oe_i[4]), .I(io_out_i[4]), .O(io_in_o[4]), .PAD(io[4]), .PEN(~pad_cfg_i[4][0]));
+    pad_functional_pd i_pad_5   (.OEN(~io_oe_i[5]), .I(io_out_i[5]), .O(io_in_o[5]), .PAD(io[5]), .PEN(~pad_cfg_i[5][0]));
+    pad_functional_pd i_pad_6   (.OEN(~io_oe_i[6]), .I(io_out_i[6]), .O(io_in_o[6]), .PAD(io[6]), .PEN(~pad_cfg_i[6][0]));
     pad_functional_pd i_pad_7   (.OEN(~io_oe_i[7]), .I(io_out_i[7]), .O(io_in_o[7]), .PAD(io[7]), .PEN(~pad_cfg_i[7][0]));
     pad_functional_pd i_pad_8   (.OEN(~io_oe_i[8]), .I(io_out_i[8]), .O(io_in_o[8]), .PAD(io[8]), .PEN(~pad_cfg_i[8][0]));
     pad_functional_pd i_pad_9   (.OEN(~io_oe_i[9]), .I(io_out_i[9]), .O(io_in_o[9]), .PAD(io[9]), .PEN(~pad_cfg_i[9][0]));
@@ -112,12 +82,7 @@ module pad_frame(
     pad_functional_pd i_pad_42   (.OEN(~io_oe_i[42]), .I(io_out_i[42]), .O(io_in_o[42]), .PAD(io[42]), .PEN(~pad_cfg_i[42][0]));
     pad_functional_pd i_pad_43   (.OEN(~io_oe_i[43]), .I(io_out_i[43]), .O(io_in_o[43]), .PAD(io[43]), .PEN(~pad_cfg_i[43][0]));
     pad_functional_pd i_pad_44   (.OEN(~io_oe_i[44]), .I(io_out_i[44]), .O(io_in_o[44]), .PAD(io[44]), .PEN(~pad_cfg_i[44][0]));
-    `ifndef PULP_FPGA_EMUL
-      pad_functional_pu i_pad_45    (.OEN(1'b0), .I(1'b0), .O(bootsel_o), .PAD(io[45]), .PEN(1'b1));
-    `else
     pad_functional_pd i_pad_45   (.OEN(~io_oe_i[45]), .I(io_out_i[45]), .O(io_in_o[45]), .PAD(io[45]), .PEN(~pad_cfg_i[45][0]));
-      assign bootsel_o = io_in_o[45];
-    `endif
     pad_functional_pd i_pad_46   (.OEN(~io_oe_i[46]), .I(io_out_i[46]), .O(io_in_o[46]), .PAD(io[46]), .PEN(~pad_cfg_i[46][0]));
     pad_functional_pd i_pad_47   (.OEN(~io_oe_i[47]), .I(io_out_i[47]), .O(io_in_o[47]), .PAD(io[47]), .PEN(~pad_cfg_i[47][0]));
 
