@@ -25,7 +25,8 @@ export INTERLEAVED_BANK_SIZE=28672
 export PRIVATE_BANK_SIZE=8192
 
 help:
-			@echo "all:            generate build scripts, custom build files, doc and sw header files"
+			@echo "all:            create generated src files, doc and sw header files"
+			@echo "src:            create generated src files"
 			@echo "lint:           run Verilator lint check"
 			@echo "doc:            generate documentation"
 			@echo "sw:             generate C header files (in ./sw)"
@@ -35,6 +36,8 @@ help:
 			@echo "clean:          remove generated files"
 			
 all:	${IOSCRIPT_OUT} docs sw
+
+src:	${IOSCRIPT_OUT}
 
 clean:
 				(cd docs; make clean)
