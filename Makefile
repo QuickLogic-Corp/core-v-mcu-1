@@ -25,7 +25,7 @@ export INTERLEAVED_BANK_SIZE=28672
 export PRIVATE_BANK_SIZE=8192
 
 help:
-			@echo "all:            create generated src filess, doc and sw header files"
+			@echo "all:            create generated src files, doc and sw header files"
 			@echo "src:            create generated src files"
 			@echo "lint:           run Verilator lint check"
 			@echo "doc:            generate documentation"
