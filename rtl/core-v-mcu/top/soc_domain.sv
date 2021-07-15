@@ -300,7 +300,7 @@ module soc_domain
     // From JTAG Tap Controller to axi_dcb module    //
     ///////////////////////////////////////////////////
     input  logic                jtag_tck_i,
-    input  logic                jtag_trstn_i,
+    input  logic                jtag_trst_ni,
     input  logic                jtag_tms_i,
     input  logic                jtag_tdi_i,
     output logic                jtag_tdo_o,
@@ -545,8 +545,8 @@ module soc_domain
       .ROM_ADDR_WIDTH(ROM_ADDR_WIDTH)
   ) boot_rom_i (
       .clk_i      (s_soc_clk),
-      .rstn_i     (s_soc_rstn),
-      .initn_i    (1'b1),
+      .rst_ni     (s_soc_rstn),
+      .init_ni    (1'b1),
       .mem_slave  (s_mem_rom_bus),
       .test_mode_i(dft_test_mode_i)
   );
@@ -566,7 +566,7 @@ module soc_domain
 
       .clk_i        (s_soc_clk),
       .periph_clk_i (s_periph_clk),
-      .rstn_i       (s_soc_rstn),
+      .rst_ni       (s_soc_rstn),
       .sel_fll_clk_i(s_sel_fll_clk),
       .ref_clk_i    (ref_clk_i),
       .slow_clk_i   (slow_clk_i),
@@ -764,7 +764,7 @@ module soc_domain
 
   edge_propagator_rx ep_dma_pe_evt_i (
       .clk_i  (s_soc_clk),
-      .rstn_i (s_rstn_cluster_sync_soc),
+      .rst_ni (s_rstn_cluster_sync_soc),
       .valid_o(s_dma_pe_evt),
       .ack_o  (dma_pe_evt_ack_o),
       .valid_i(dma_pe_evt_valid_i)
@@ -772,7 +772,7 @@ module soc_domain
 
   edge_propagator_rx ep_dma_pe_irq_i (
       .clk_i  (s_soc_clk),
-      .rstn_i (s_rstn_cluster_sync_soc),
+      .rst_ni (s_rstn_cluster_sync_soc),
       .valid_o(s_dma_pe_irq),
       .ack_o  (dma_pe_irq_ack_o),
       .valid_i(dma_pe_irq_valid_i)
@@ -780,7 +780,7 @@ module soc_domain
 `ifndef PULP_FPGA_EMUL
   edge_propagator_rx ep_pf_evt_i (
       .clk_i  (s_soc_clk),
-      .rstn_i (s_rstn_cluster_sync_soc),
+      .rst_ni (s_rstn_cluster_sync_soc),
       .valid_o(s_pf_evt),
       .ack_o  (pf_evt_ack_o),
       .valid_i(pf_evt_valid_i)
@@ -795,7 +795,7 @@ module soc_domain
       .USE_ZFINX (USE_ZFINX)
   ) fc_subsystem_i (
       .clk_i (s_soc_clk),
-      .rstn_i(s_soc_rstn),
+      .rst_ni(s_soc_rstn),
 
       .test_en_i(dft_test_mode_i),
 
@@ -867,7 +867,7 @@ module soc_domain
       .AXI_USER_WIDTH(AXI_USER_WIDTH)
   ) i_soc_interconnect_wrap (
       .clk_i                (s_soc_clk),
-      .rstn_i               (s_soc_rstn),
+      .rst_ni               (s_soc_rstn),
       .test_en_i            (dft_test_mode_i),
       .tcdm_fc_data         (s_lint_fc_data_bus),
       .tcdm_fc_instr        (s_lint_fc_instr_bus),
@@ -903,7 +903,7 @@ module soc_domain
       .IdcodeValue(`DMI_JTAG_IDCODE)
   ) i_dmi_jtag (
       .clk_i           (s_soc_clk),
-      .rstn_i          (s_soc_rstn),
+      .rst_ni          (s_soc_rstn),
       .testmode_i      (1'b0),
       .dmi_req_o       (jtag_dmi_req),
       .dmi_req_valid_o (jtag_req_valid),
@@ -914,7 +914,7 @@ module soc_domain
       .dmi_rst_no      (),  // not connected
       .tck_i           (jtag_tck_i),
       .tms_i           (jtag_tms_i),
-      .trstn_i         (jtag_trstn_i),
+      .trst_ni         (jtag_trst_ni),
       .td_i            (jtag_tdi_i),
       .td_o            (jtag_tdo_o),
       .tdo_oe_o        ()
@@ -938,7 +938,7 @@ module soc_domain
       .SelectableHarts(SELECTABLE_HARTS)
   ) i_dm_top (
       .clk_i        (s_soc_clk),
-      .rstn_i       (s_soc_rstn),
+      .rst_ni       (s_soc_rstn),
       .testmode_i   (1'b0),
       .ndmreset_o   (),
       .dmactive_o   (),  // active debug session
@@ -962,7 +962,7 @@ module soc_domain
       .master_r_valid_i(s_lint_riscv_jtag_bus.r_valid),
       .master_r_rdata_i(s_lint_riscv_jtag_bus.r_rdata),
 
-      .dmi_rstn_i      (s_soc_rstn),
+      .dmi_rst_ni      (s_soc_rstn),
       .dmi_req_valid_i (jtag_req_valid),
       .dmi_req_ready_o (debug_req_ready),
       .dmi_req_i       (jtag_dmi_req),
@@ -980,7 +980,7 @@ module soc_domain
       .APB_ADDR_WIDTH(32)
   ) apb2per_newdebug_i (
       .clk_i (s_soc_clk),
-      .rstn_i(s_soc_rstn),
+      .rst_ni(s_soc_rstn),
 
       .PADDR  (s_apb_debug_bus.paddr),
       .PWDATA (s_apb_debug_bus.pwdata),
