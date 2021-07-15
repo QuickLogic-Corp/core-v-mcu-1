@@ -24,7 +24,7 @@ module MAC_4BIT (
   parameter ACC_WIDTH     = 2*(MULTI_WIDTH+PAD_ZERO) ;
 
 //OUTPUT
-output [4:0] MAC_OUT;
+output [3:0] MAC_OUT;
 
 //INPUT
 input        MAC_ACC_CLK;
@@ -45,7 +45,7 @@ input        acc_ff_rstn;
 reg  [ 5:0] fMAC_OUT_SEL;
 reg  [19:0] mux_acc_idata;
 reg  [19:0] fmux_acc_idata;
-reg  [3: 0] MAC_OUT;
+reg  [ 3:0] MAC_OUT;
 reg  [19:0] is_rounded_value;
 reg  [19:0] feedback_acc_data;
 reg         is_not_saturation;

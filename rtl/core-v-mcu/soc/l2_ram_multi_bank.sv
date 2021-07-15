@@ -50,28 +50,46 @@ module l2_ram_multi_bank #(
     //Remove Address offset
     assign interleaved_addresses[i] = mem_slave[i].add - `SOC_MEM_MAP_TCDM_START_ADDR;
 
-`ifndef PULP_FPGA_EMUL
-    generic_memory #(
-        .ADDR_WIDTH(INTL_MEM_ADDR_WIDTH),
-        .DATA_WIDTH(32)
-    ) bank_i (
-        .CLK(clk_i),
-        .INITN(1'b1),
-        .CEN(~mem_slave[i].req),
-        .BEN(~mem_slave[i].be),
-        .WEN(mem_slave[i].wen),
-        .A(interleaved_addresses[i][INTL_MEM_ADDR_WIDTH+2+$clog2(
-            NB_BANKS
-        )-1:2+$clog2(
-            NB_BANKS
-        )]),  // Remove LSBs for byte addressing (2 bits)
-        // and bank selection (log2(NB_BANKS) bits)
-        .D(mem_slave[i].wdata),
-        .Q(mem_slave[i].r_rdata)
-    );
+// `ifndef PULP_FPGA_EMUL
+    // generic_memory #(
+        // .ADDR_WIDTH(INTL_MEM_ADDR_WIDTH),
+        // .DATA_WIDTH(32)
+    // ) bank_i (
+        // .CLK(clk_i),
+        // .INITN(1'b1),
+        // .CEN(~mem_slave[i].req),
+        // .BEN(~mem_slave[i].be),
+        // .WEN(mem_slave[i].wen),
+        // .A(interleaved_addresses[i][INTL_MEM_ADDR_WIDTH+2+$clog2(
+            // NB_BANKS
+        // )-1:2+$clog2(
+            // NB_BANKS
+        // )]),  // Remove LSBs for byte addressing (2 bits)
+        // // and bank selection (log2(NB_BANKS) bits)
+        // .D(mem_slave[i].wdata),
+        // .Q(mem_slave[i].r_rdata)
+    // );
 
-`else  // !`ifndef PULP_FPGA_EMUL
-    fpga_interleaved_ram #(
+// `else  // !`ifndef PULP_FPGA_EMUL
+    // fpga_interleaved_ram #(
+        // .ADDR_WIDTH(INTL_MEM_ADDR_WIDTH)
+    // ) bank_i (
+        // .clk_i,
+        // .rst_ni,
+        // .csn_i(~mem_slave[i].req),
+        // .wen_i(mem_slave[i].wen),
+        // .be_i(mem_slave[i].be),
+        // .addr_i(interleaved_addresses[i][INTL_MEM_ADDR_WIDTH-1+2+$clog2(
+            // NB_BANKS
+        // ):2+$clog2(
+            // NB_BANKS
+        // )]),  // Remove LSBs for byte addressing (2 bits)
+        // // and bank selection (log2(NB_BANKS) bits)
+        // .wdata_i(mem_slave[i].wdata),
+        // .rdata_o(mem_slave[i].r_rdata)
+    // );
+// `endif
+    core_v_mcu_interleaved_ram #(
         .ADDR_WIDTH(INTL_MEM_ADDR_WIDTH)
     ) bank_i (
         .clk_i,
@@ -79,16 +97,16 @@ module l2_ram_multi_bank #(
         .csn_i(~mem_slave[i].req),
         .wen_i(mem_slave[i].wen),
         .be_i(mem_slave[i].be),
-        .addr_i(interleaved_addresses[i][INTL_MEM_ADDR_WIDTH-1+2+$clog2(
-            NB_BANKS
-        ):2+$clog2(
-            NB_BANKS
-        )]),  // Remove LSBs for byte addressing (2 bits)
+        .addr_i(interleaved_addresses[i]
+          [
+            INTL_MEM_ADDR_WIDTH-1 + 2 +$clog2(NB_BANKS)
+            : 2 + $clog2(NB_BANKS)
+          ]
+        ),  // Remove LSBs for byte addressing (2 bits)
         // and bank selection (log2(NB_BANKS) bits)
         .wdata_i(mem_slave[i].wdata),
         .rdata_o(mem_slave[i].r_rdata)
     );
-`endif
   end
 
   // PRIVATE BANK0
@@ -105,22 +123,35 @@ module l2_ram_multi_bank #(
   //Remove Address offset
   logic [31:0] pri0_address;
   assign pri0_address = mem_pri_slave[0].add - `SOC_MEM_MAP_PRIVATE_BANK0_START_ADDR;
-`ifndef PULP_FPGA_EMUL
-  generic_memory #(
-      .ADDR_WIDTH(PRI0_MEM_ADDR_WIDTH),
-      .DATA_WIDTH(32)
-  ) bank_sram_pri0_i (
-      .CLK  (clk_i),
-      .INITN(1'b1),
-      .CEN  (~mem_pri_slave[0].req),
-      .BEN  (~mem_pri_slave[0].be),
-      .WEN  (mem_pri_slave[0].wen),
-      .A    (pri0_address[PRI0_MEM_ADDR_WIDTH+1:2]),  //Convert from byte to word addressing
-      .D    (mem_pri_slave[0].wdata),
-      .Q    (mem_pri_slave[0].r_rdata)
-  );
-`else  // !`ifndef PULP_FPGA_EMUL
-  fpga_private_ram #(
+// `ifndef PULP_FPGA_EMUL
+  // generic_memory #(
+      // .ADDR_WIDTH(PRI0_MEM_ADDR_WIDTH),
+      // .DATA_WIDTH(32)
+  // ) bank_sram_pri0_i (
+      // .CLK  (clk_i),
+      // .INITN(1'b1),
+      // .CEN  (~mem_pri_slave[0].req),
+      // .BEN  (~mem_pri_slave[0].be),
+      // .WEN  (mem_pri_slave[0].wen),
+      // .A    (pri0_address[PRI0_MEM_ADDR_WIDTH+1:2]),  //Convert from byte to word addressing
+      // .D    (mem_pri_slave[0].wdata),
+      // .Q    (mem_pri_slave[0].r_rdata)
+  // );
+// `else  // !`ifndef PULP_FPGA_EMUL
+  // fpga_private_ram #(
+      // .ADDR_WIDTH(PRI0_MEM_ADDR_WIDTH)
+  // ) bank_sram_pri0_i (
+      // .clk_i,
+      // .rst_ni,
+      // .csn_i  (~mem_pri_slave[0].req),
+      // .wen_i  (mem_pri_slave[0].wen),
+      // .be_i   (mem_pri_slave[0].be),
+      // .addr_i (pri0_address[PRI0_MEM_ADDR_WIDTH+1:2]),  //Convert from byte to word addressing
+      // .wdata_i(mem_pri_slave[0].wdata),
+      // .rdata_o(mem_pri_slave[0].r_rdata)
+  // );
+// `endif  // !`ifndef PULP_FPGA_EMUL
+  core_v_mcu_private_ram #(
       .ADDR_WIDTH(PRI0_MEM_ADDR_WIDTH)
   ) bank_sram_pri0_i (
       .clk_i,
@@ -132,7 +163,6 @@ module l2_ram_multi_bank #(
       .wdata_i(mem_pri_slave[0].wdata),
       .rdata_o(mem_pri_slave[0].r_rdata)
   );
-`endif  // !`ifndef PULP_FPGA_EMUL
 
 
   // PRIVATE BANK1
@@ -149,22 +179,35 @@ module l2_ram_multi_bank #(
   //Remove Address offset
   logic [31:0] pri1_address;
   assign pri1_address = mem_pri_slave[1].add - `SOC_MEM_MAP_PRIVATE_BANK1_START_ADDR;
-`ifndef PULP_FPGA_EMUL
-  generic_memory #(
-      .ADDR_WIDTH(PRI1_MEM_ADDR_WIDTH),
-      .DATA_WIDTH(32)
-  ) bank_sram_pri1_i (
-      .CLK  (clk_i),
-      .INITN(1'b1),
-      .CEN  (~mem_pri_slave[1].req),
-      .BEN  (~mem_pri_slave[1].be),
-      .WEN  (mem_pri_slave[1].wen),
-      .A    (pri1_address[PRI1_MEM_ADDR_WIDTH+1:2]),  //Convert from byte to word addressing
-      .D    (mem_pri_slave[1].wdata),
-      .Q    (mem_pri_slave[1].r_rdata)
-  );
-`else  // !`ifndef PULP_FPGA_EMUL
-  fpga_private_ram #(
+// `ifndef PULP_FPGA_EMUL
+  // generic_memory #(
+      // .ADDR_WIDTH(PRI1_MEM_ADDR_WIDTH),
+      // .DATA_WIDTH(32)
+  // ) bank_sram_pri1_i (
+      // .CLK  (clk_i),
+      // .INITN(1'b1),
+      // .CEN  (~mem_pri_slave[1].req),
+      // .BEN  (~mem_pri_slave[1].be),
+      // .WEN  (mem_pri_slave[1].wen),
+      // .A    (pri1_address[PRI1_MEM_ADDR_WIDTH+1:2]),  //Convert from byte to word addressing
+      // .D    (mem_pri_slave[1].wdata),
+      // .Q    (mem_pri_slave[1].r_rdata)
+  // );
+// `else  // !`ifndef PULP_FPGA_EMUL
+  // fpga_private_ram #(
+      // .ADDR_WIDTH(PRI1_MEM_ADDR_WIDTH)
+  // ) bank_sram_pri1_i (
+      // .clk_i,
+      // .rst_ni,
+      // .csn_i  (~mem_pri_slave[1].req),
+      // .wen_i  (mem_pri_slave[1].wen),
+      // .be_i   (mem_pri_slave[1].be),
+      // .addr_i (pri1_address[PRI1_MEM_ADDR_WIDTH+1:2]),  //Convert from byte to word addressing
+      // .wdata_i(mem_pri_slave[1].wdata),
+      // .rdata_o(mem_pri_slave[1].r_rdata)
+  // );
+// `endif
+  core_v_mcu_private_ram #(
       .ADDR_WIDTH(PRI1_MEM_ADDR_WIDTH)
   ) bank_sram_pri1_i (
       .clk_i,
@@ -176,7 +219,6 @@ module l2_ram_multi_bank #(
       .wdata_i(mem_pri_slave[1].wdata),
       .rdata_o(mem_pri_slave[1].r_rdata)
   );
-`endif
 
 
 endmodule  // l2_ram_multi_bank

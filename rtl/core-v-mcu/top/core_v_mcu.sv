@@ -248,9 +248,10 @@ module core_v_mcu (
   //
   // OTHER PAD FRAME SIGNALS
   //
-  logic                                      s_bootsel;
-  logic                                      s_fc_fetch_en_valid;
-  logic                                      s_fc_fetch_en;
+  logic                                       s_bootsel;
+  logic                                       s_fc_fetch_en_valid;
+  logic                                       s_fc_fetch_en;
+  logic                                       s_jtag_tdo;
 
   //
   // SYSTEM IO / SAFE DOMAIN
@@ -265,14 +266,15 @@ module core_v_mcu (
   assign s_ref_clk                      = io_in_i[`IOINDEX_REF_CLK_I];
   assign s_rstn                         = io_in_i[`IOINDEX_RSTN_I];
 
-`ifdef (`IOINDEX_JTAG_TDO_O == 0)
-  assign io_out_o = {s_io_out[`N_IO-1:`IOINDEX_JTAG_TDO_O+1], s_jtag_tdo};
-`elsif  (`IOINDEX_JTAG_TDO_O == (`N_IO-1))
-  assign io_out_o = {s_jtag_tdo, s_io_out[`IOINDEX_JTAG_TDO_O-1:0]};
-`else
-  assign io_out_o = {s_io_out[`N_IO-1:`IOINDEX_JTAG_TDO_O+1], s_jtag_tdo, s_io_out[`IOINDEX_JTAG_TDO_O-1:0]};
-`endif
-
+  generate
+    if (`IOINDEX_JTAG_TDO_O == 0) begin
+      assign io_out_o = {s_io_out[`N_IO-1:`IOINDEX_JTAG_TDO_O+1], s_jtag_tdo};
+    end else if  (`IOINDEX_JTAG_TDO_O == (`N_IO-1)) begin
+      assign io_out_o = {s_jtag_tdo, s_io_out[`IOINDEX_JTAG_TDO_O-1:0]};
+    end else begin
+      assign io_out_o = {s_io_out[`N_IO-1:`IOINDEX_JTAG_TDO_O+1], s_jtag_tdo, s_io_out[`IOINDEX_JTAG_TDO_O-1:0]};
+    end
+  endgenerate
   //
   // SAFE DOMAIN
   //

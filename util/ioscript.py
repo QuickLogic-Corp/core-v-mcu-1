@@ -31,15 +31,15 @@ inputArgs = parser.add_argument_group("input files")
 inputArgs.add_argument("--soc-defines", help="file with pulp_soc_defines")
 inputArgs.add_argument("--periph-bus-defines", help="file with peripheral bus define (memory map)")
 inputArgs.add_argument("--perdef-json", help="peripheral definition json file")
-inputArgs.add_argument("--pin-table", help="csv filecontaining pin-table")
+inputArgs.add_argument("--pin-table", help="csv file containing pin-table")
 inputArgs.add_argument("--input-xdc", help="xdc that defines board")
 inputArgs.add_argument("--reg-def-csv", help="register definition file (csv)")
 
 outputArgs = parser.add_argument_group("output files")
-outputArgs.add_argument("--peripheral-defines", help="file to put  pulp_peripheral_defines")
-outputArgs.add_argument("--pad-control-sv", help="file to put  pad_control.sv")
-outputArgs.add_argument("--pad-frame-sv", help="file to put  pad_frame.sv")
-outputArgs.add_argument("--pad-frame-gf22-sv", help="file to put  pad_frame_gf22.sv")
+outputArgs.add_argument("--peripheral-defines", help="file to put pulp_peripheral_defines")
+outputArgs.add_argument("--pad-control-sv", help="file to put pad_control.sv")
+outputArgs.add_argument("--pad-frame-sv", help="file to put pad_frame.sv")
+outputArgs.add_argument("--core-v-mcu-gf22fdx-sv", help="file to put top level for core_v_mcu_gf22.sv")
 outputArgs.add_argument("--xilinx-core-v-mcu-sv", help="file for xilinx_core_v_mcu.sv")
 outputArgs.add_argument("--output-xdc", help="output xdc for use in Vivado")
 outputArgs.add_argument("--cvmcu-h", help="cvmcu.h file for compiles")
@@ -810,64 +810,59 @@ if args.pad_frame_sv != None:
 #           0x1 enable? pullup
 #
 ################################################
-if args.pad_frame_gf22_sv != None:
-    with open(args.pad_frame_gf22_sv, 'w') as pad_frame_sv:
+if args.core_v_mcu_gf22fdx_sv != None:
+    with open(args.core_v_mcu_gf22fdx_sv, 'w') as gf22fdx_sv:
         #
         # Write Apache license and header
         #
-        pad_frame_sv.write("//-----------------------------------------------------\n")
-        pad_frame_sv.write("// This is a generated file\n")
-        pad_frame_sv.write("//-----------------------------------------------------\n")
-        pad_frame_sv.write("// Copyright 2018 ETH Zurich and University of bologna.\n")
-        pad_frame_sv.write("// Copyright and related rights are licensed under the Solderpad Hardware\n")
-        pad_frame_sv.write("// License, Version 0.51 (the \"License\"); you may not use this file except in\n")
-        pad_frame_sv.write("// compliance with the License.  You may obtain a copy of the License at\n")
-        pad_frame_sv.write("// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law\n")
-        pad_frame_sv.write("// or agreed to in writing, software, hardware and materials distributed under\n")
-        pad_frame_sv.write("// this License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR\n")
-        pad_frame_sv.write("// CONDITIONS OF ANY KIND, either express or implied. See the License for the\n")
-        pad_frame_sv.write("// specific language governing permissions and limitations under the License.\n")
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("`define DRV_SIG   .NDIN(1'b0), .NDOUT(), .DRV(2'b10), .PWROK(PWROK_S), .IOPWROK(IOPWROK_S), .BIAS(BIAS_S), .RETC(RETC_S)\n")
-        pad_frame_sv.write("`define DRV_SIG_I .NDIN(1'b0), .NDOUT(),              .PWROK(PWROK_S), .IOPWROK(IOPWROK_S), .BIAS(BIAS_S), .RETC(RETC_S)\n")
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("`include \"pulp_soc_defines.sv\"\n")
-        pad_frame_sv.write("\n")
+        gf22fdx_sv.write("//-----------------------------------------------------\n")
+        gf22fdx_sv.write("// This is a generated file\n")
+        gf22fdx_sv.write("//-----------------------------------------------------\n")
+        gf22fdx_sv.write("// Copyright 2021QuickLogic.\n")
+        gf22fdx_sv.write("// Copyright 2021 QuickLogic\n")
+        gf22fdx_sv.write("// Solderpad Hardware License, Version 2.1, see LICENSE.md for details.")
+        gf22fdx_sv.write("// SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1")
+        gf22fdx_sv.write("\n")
+        gf22fdx_sv.write("`define DRV_SIG   .NDIN(1'b0), .NDOUT(), .DRV(2'b10), .PWROK(PWROK_S), .IOPWROK(IOPWROK_S), .BIAS(BIAS_S), .RETC(RETC_S)\n")
+        gf22fdx_sv.write("`define DRV_SIG_I .NDIN(1'b0), .NDOUT(),              .PWROK(PWROK_S), .IOPWROK(IOPWROK_S), .BIAS(BIAS_S), .RETC(RETC_S)\n")
+        gf22fdx_sv.write("\n")
+        gf22fdx_sv.write("`include \"pulp_soc_defines.sv\"\n")
+        gf22fdx_sv.write("\n")
 
-        pad_frame_sv.write("module pad_frame_gf22(\n")
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("    input logic [`N_IO-1:0][`NBIT_PADCFG-1:0] pad_cfg_i,\n")
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("    // sysio signals\n")
-        for ioname in sysio:
-            if ioname != '':
-                pad_frame_sv.write("    %s logic %s_%s,\n" %('output' if (sysio[ioname] == 'input' or sysio[ioname] == 'snoop') else 'input ', ioname, "o" if (sysio[ioname] == 'input' or sysio[ioname] == 'snoop') else "i"))
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("    // internal io signals\n")
-        pad_frame_sv.write("    input  logic [`N_IO-1:0] io_out_i,  // data going to pads\n")
-        pad_frame_sv.write("    input  logic [`N_IO-1:0] io_oe_i,   // enable going to pads\n")
-        pad_frame_sv.write("    output logic [`N_IO-1:0] io_in_o,   // data coming from pads\n")
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("    // pad signals\n")
-        pad_frame_sv.write("    inout  wire [`N_IO-1:0] io\n")
-        pad_frame_sv.write("    );\n")
+        gf22fdx_sv.write("module core_v_mcu_gf22fdx(\n")
+        gf22fdx_sv.write("\n")
+        gf22fdx_sv.write("  // pad signals\n")
+        gf22fdx_sv.write("  inout  wire [`N_IO-1:0] io\n")
+        gf22fdx_sv.write("  );\n")
 
-        pad_frame_sv.write("    // connect io\n")
+        gf22fdx_sv.write("  // define signals\n")
+        gf22fdx_sv.write("  wire [`N_IO-1:0] s_io_out;\n")
+        gf22fdx_sv.write("  wire [`N_IO-1:0] s_io_oe;\n")
+        gf22fdx_sv.write("  wire [`N_IO-1:0] s_io_in;\n")
+        gf22fdx_sv.write("  wire [`N_IO-1:0][`NBIT_PADCFG-1:0] s_pad_cfg;\n")
+        
+        gf22fdx_sv.write("  // connect io\n")
         for ionum in range(N_IO):
-            if sysionames[ionum] != -1:
-                if sysio[sysionames[ionum][:-2]] == 'output':
-                    # pad_frame_sv.write("      pad_functional_pu i_pad_%d    (.OEN(1'b1), .I( ), .O(%s), .PAD(io[%d]), .PEN(1'b1));\n" % (ionum, sysionames[ionum], ionum))
-                    pad_frame_sv.write("    IN22FDX_GPIO18_10M30P_IO_%s i_pad_%d (.TRIEN(1'b0), .DATA(%s), .RXEN(1'b0), .Y(), .PAD(io[%d]), .PDEN(~pad_cfg_i[%d][0]), .PUEN(~pad_cfg_i[%d][1]), `DRV_SIG );;\n" %\
-                        ("H", ionum, sysionames[ionum], ionum, ionum, ionum))
-                else:
-                    # pad_frame_sv.write("      pad_functional_pu i_pad_%d    (.OEN(1'b0), .I(%s), .O( ), .PAD(io[%d]), .PEN(1'b1));\n" % (ionum, sysionames[ionum], ionum))
-                    pad_frame_sv.write("    IN22FDX_GPIO18_10M30P_IO_%s i_pad_%d (.TRIEN(1'b1), .DATA(), .RXEN(1'b1), .Y(%s), .PAD(io[%d]), .PDEN(~pad_cfg_i[%d][0]), .PUEN(~pad_cfg_i[%d][1]), `DRV_SIG );;\n" %\
-                        ("H", ionum, sysionames[ionum], ionum, ionum, ionum))
-            else:
-                pad_frame_sv.write("    IN22FDX_GPIO18_10M30P_IO_%s i_pad_%d (.TRIEN(~io_oe_i[%d]), .DATA(io_out_i[%d]), .RXEN(~io_out_i[%d]), .Y(io_in_o[%d]), .PAD(io[%d]), .PDEN(~pad_cfg_i[%d][0]), .PUEN(~pad_cfg_i[%d][1]), `DRV_SIG );;\n" %\
-                    ("H", ionum, ionum, ionum, ionum, ionum, ionum, ionum, ionum))
-        pad_frame_sv.write("\n")
-        pad_frame_sv.write("endmodule\n")
+            # if sysionames[ionum] != -1:
+                # if sysio[sysionames[ionum][:-2]] == 'output':
+                    # # gf22fdx_sv.write("      pad_functional_pu i_pad_%d    (.OEN(1'b1), .I( ), .O(%s), .PAD(io[%d]), .PEN(1'b1));\n" % (ionum, sysionames[ionum], ionum))
+                    # gf22fdx_sv.write("    IN22FDX_GPIO18_10M30P_IO_%s i_pad_%d (.TRIEN(1'b0), .DATA(%s), .RXEN(1'b0), .Y(), .PAD(io[%d]), .PDEN(~pad_cfg_o[%d][0]), .PUEN(~pad_cfg_o[%d][1]), `DRV_SIG );;\n" %\
+                        # ("H", ionum, sysionames[ionum], ionum, ionum, ionum))
+                # else:
+                    # # gf22fdx_sv.write("      pad_functional_pu i_pad_%d    (.OEN(1'b0), .I(%s), .O( ), .PAD(io[%d]), .PEN(1'b1));\n" % (ionum, sysionames[ionum], ionum))
+                    # gf22fdx_sv.write("    IN22FDX_GPIO18_10M30P_IO_%s i_pad_%d (.TRIEN(1'b1), .DATA(), .RXEN(1'b1), .Y(%s), .PAD(io[%d]), .PDEN(~pad_cfg_o[%d][0]), .PUEN(~pad_cfg_o[%d][1]), `DRV_SIG );;\n" %\
+                        # ("H", ionum, sysionames[ionum], ionum, ionum, ionum))
+            # else:
+            gf22fdx_sv.write("  IN22FDX_GPIO18_10M30P_IO_%s i_pad_%d (.TRIEN(~s_io_oe[%d]), .DATA(s_io_out[%d]), .RXEN(~s_io_out[%d]), .Y(s_io_in[%d]), .PAD(io[%d]), .PDEN(~s_pad_cfg[%d][0]), .PUEN(~s_pad_cfg[%d][1]), `DRV_SIG );\n" %\
+                ("H", ionum, ionum, ionum, ionum, ionum, ionum, ionum, ionum))
+        gf22fdx_sv.write("\n")
+        gf22fdx_sv.write("  core_v_mcu i_core_v_mcu (\n")
+        gf22fdx_sv.write("    .io_out_o(s_io_out),\n")
+        gf22fdx_sv.write("    .io_oe_o(s_io_oe),\n")
+        gf22fdx_sv.write("    .io_in_i(s_io_in),\n")
+        gf22fdx_sv.write("    .pad_cfg_o(s_pad_cfg)\n")
+        gf22fdx_sv.write("  );\n")
+        gf22fdx_sv.write("endmodule\n")
 
 ################################################
 #
