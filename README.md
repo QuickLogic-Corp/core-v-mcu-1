@@ -7,7 +7,7 @@
 > stand-alone project within OpenHW Group independent from PULPIssimo.
 >
 > In case you should be interested to join the project please feel free to open
-> an issue, or involve yourself in any open issues/discussions.
+>  an issue, or involve yourself in any open issues/discussions.
 
 ## Getting Started
 
